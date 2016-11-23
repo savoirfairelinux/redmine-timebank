@@ -11,7 +11,6 @@
 	<%= render :partial => 'versions/overview', :locals => {:version => @version} %>
 	<%= render(:partial => "wiki/content", :locals => {:content => @version.wiki_page.content}) if @version.wiki_page %>
 	<div id="version-summary">
-		<% if SFL_Permissions.is_user_allowed_to?(User.current, :read, 'banque_heure', @project) %>
 		<fieldset class="time-tracking"><legend><%= l(:label_time_tracking) %></legend>
 			<table>
 				<% @timebank[Version][:totals].each do |column, value| %>
@@ -22,7 +21,6 @@
 				<% end %>
 			</table>
 		</fieldset>
-		<% end %>
 		<div id="status_by">
 			<%= render_issue_status_by(@version, params[:status_by]) if @version.fixed_issues.count > 0 %>
 		</div>
