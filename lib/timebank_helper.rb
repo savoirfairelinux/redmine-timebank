@@ -45,14 +45,14 @@ module TimeBankHelper
 		if group == 'id' then
 			selection.each do |grouping|
 				data[grouping.to_i] = template.clone unless data.key? grouping
-				data[grouping.to_i][:spent_hours] = grouping.total_spent_hours.to_f
+				data[grouping.to_i][:spent_hours] = grouping.total_spent_hours.to_f if columns.include? :spent_hours and project.module_enabled?('time_tracking')
 			end
 		else
 			project.issue_categories.map(&:id).push(nil).each do |grouping|
 				data[grouping] = template.clone unless data.key? grouping
 				data[grouping][:spent_hours] = selection.where(('issues.'+group) => grouping).map(&:total_spent_hours).inject(:+).to_f
-			end
-		end if columns.include? :spent_hours and project.module_enabled?('time_tracking')
+			end if columns.include? :spent_hours and project.module_enabled?('time_tracking')
+		end
 
 		selection_with_group.sum(:estimated_hours).each do |grouping, total|
 			data[grouping] = template.clone unless data.key? grouping
