@@ -31,6 +31,8 @@ module VersionsControllerPatch
 			@v_issues[:stories] = TimeBankHelper.issues_summations(@version, [config[:tracker_story], config[:tracker_bug]], 'id', columns)
 			@v_issues[:tasks] = TimeBankHelper.issues_summations(@version, [config[:tracker_task]], 'id', columns - [:story_points])
 
+			@show_timebanks = columns.count > 0
+
 			return show_without_timebank
 
 		end
