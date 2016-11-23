@@ -18,9 +18,9 @@ module VersionsControllerPatch
 			@project = @version.project
 
 			columns = [:story_points, :estimated_hours, :spent_hours, :remaining_hours]
-			columns.each do |column|
-				columns.delete(column) unless SFL_Permissions.is_user_allowed_to?(User.current, :read, column.to_s, @project)
-			end if Redmine::Plugin.registered_plugins.keys.include? :sfl_backlogs_permissions
+			if Redmine::Plugin.registered_plugins.keys.include? :sfl_backlogs_permissions then
+				columns.delete_if { |column| not SFL_Permissions.is_user_allowed_to?(User.current, :read, column.to_s, @project) }
+			end 
 
 			@timebank = {}
 			timebank_trackers = [config[:tracker_story], config[:tracker_bug]]
