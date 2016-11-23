@@ -1,0 +1,10 @@
+en:
+    spent_hours: Spent hours
+    estimated_hours: Estimated hours
+    remaining_hours: Remaining hours
+    story_points: Story points
+    projected_hours: Projected hours
+    no_data_returned: The data set query returned no results
+    budget_targets: Budget targets
+    related_issues: Related issues
+    related_stories: Related stories

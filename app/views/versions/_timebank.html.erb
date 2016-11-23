@@ -1,0 +1,57 @@
+<div class="time-table">
+	<%= form_tag({}) do -%>
+	<fieldset class="<% if interactive %>collapsible<% end %> <% if collapsed %>collapsed<% end %>">
+		<legend onclick="<% if interactive %>toggleFieldset(this);<% end %>">
+			<%= legend %>
+		</legend>
+		<% if data[:table].count == 0 or data[:totals].count == 0 %>
+		<p><%= l(:no_data_returned) %></p>
+		<% else %>
+		<table class="list">
+			<tbody>
+				<tr class="group-column" >
+					<th style="white-space: normal;"><%= l(('label_'+group.model_name.human.downcase.gsub(' ', '_')).to_sym) %></th>
+					<% data[:totals].each do |column, value| %>
+					<th style="white-space: normal;"><%= l(column) %></th>
+					<% end %>
+				</tr>
+				<% data[:table].each do |grouping, entries| next if grouping == nil %>
+				<tr class="odd <% if interactive %>issue hascontextmenu related-issues<% end %>">
+					<% if interactive %><td class="checkbox"><%= check_box_tag 'ids[]', group.find(grouping.to_i), false, :id => nil %></td><% end %>
+					<td class="subject" width="<% if interactive %>60<% else %>40<% end %>%" style="text-align:<% if interactive %>left<% else %>center<% end %>!important;">
+						<% if interactive %>
+							<%= link_to_issue(group.find(grouping.to_i)) %>
+						<% else %>
+							<% link_default_parameters = {:set_filter => 1, :status_id => '*', :category_id => grouping.to_i} %>
+							<% if type == Version %>
+								<% link_parameters = link_default_parameters.merge({:fixed_version_id => version}) %>
+							<% elsif type == Project %>
+								<% link_parameters = link_default_parameters %>
+							<% end %>
+							<% if grouping.nil? %>
+								<%= link_to(l(:label_none), project_issues_path(version.project, link_parameters)) %>
+							<% else %>
+								<%= link_to(group.find(grouping.to_i).to_s, project_issues_path(version.project, link_parameters)) %>
+							<% end %>
+						<% end %>
+					</td>
+					<% if data[:totals].count > 0 %>
+					<% entries.each do |column, value| %>
+					<td align="center"><%= value.round(2) %></td>
+					<% end %>
+					<% end %>
+				</tr>
+				<% end %>
+				<tr>
+					<th style="white-space: normal;"><%= l(:label_total) %></th>
+					<% data[:totals].each do |column, value| %>
+					<th style="white-space: normal;"><%= value.round(2) %></th>
+					<% end %>
+				</tr>
+			</tbody>
+		</table>
+		<%= context_menu issues_context_menu_path if interactive %>
+		<% end %>
+	</fieldset>
+	<% end %>
+</div>

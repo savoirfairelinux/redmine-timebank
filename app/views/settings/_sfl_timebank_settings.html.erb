@@ -1,0 +1,16 @@
+<h1>
+	SFL TimeBank
+</h1>
+
+<p>
+	<label>"Story" Tracker</label><%= select_tag("settings[tracker_story]", options_from_collection_for_select(Tracker.all, :id, :name, @settings[:tracker_story])) %>
+</p>
+
+<p>
+	<label>"Task" Tracker</label><%= select_tag("settings[tracker_task]", options_from_collection_for_select(Tracker.all, :id, :name, @settings[:tracker_task])) %>
+</p>
+
+<p>
+	<label>"Bug" Tracker</label><%= select_tag("settings[tracker_bug]", options_from_collection_for_select(Tracker.all, :id, :name, @settings[:tracker_bug])) %>
+</p>
+

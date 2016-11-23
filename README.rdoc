@@ -1,0 +1,8 @@
+= SFL TimeBank
+== Savoir-faire Linux
+
+Simpler and refactored version of original SFL Banque Heures powered by ActiveRecord 4
+
+Author : David Côté-Tremblay
+
+https://savoirfairelinux.com/

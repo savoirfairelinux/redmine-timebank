@@ -1,0 +1,10 @@
+fr:
+    spent_hours: Temps passé
+    estimated_hours: Temps estimé
+    remaining_hours: Temps restant
+    story_points: Points de scénario
+    projected_hours: Heures projetées
+    no_data_returned: La requête de données n'a retourné aucun résultats
+    budget_targets: Cibles budgétaires
+    related_issues: Demandes liées
+    related_stories: Scénarios liés

@@ -1,0 +1,83 @@
+<div class="contextual">
+	<%= link_to(l(:button_edit), edit_version_path(@version), :class => 'icon icon-edit') if User.current.allowed_to?(:manage_versions, @version.project) %>
+	<%= link_to_if_authorized(l(:button_edit_associated_wikipage, :page_title => @version.wiki_page_title), {:controller => 'wiki', :action => 'edit', :project_id => @version.project, :id => Wiki.titleize(@version.wiki_page_title)}, :class => 'icon icon-edit') unless @version.wiki_page_title.blank? || @version.project.wiki.nil? %>
+	<%= delete_link version_path(@version, :back_url => url_for(:controller => 'versions', :action => 'index', :project_id => @version.project)) if User.current.allowed_to?(:manage_versions, @version.project) %>
+	<%= call_hook(:view_versions_show_contextual, { :version => @version, :project => @project }) %>
+</div>
+
+<h2><%= h(@version.name) %></h2>
+
+<div id="roadmap">
+	<%= render :partial => 'versions/overview', :locals => {:version => @version} %>
+	<%= render(:partial => "wiki/content", :locals => {:content => @version.wiki_page.content}) if @version.wiki_page %>
+	<div id="version-summary">
+		<% if SFL_Permissions.is_user_allowed_to?(User.current, :read, 'banque_heure', @project) %>
+		<fieldset class="time-tracking"><legend><%= l(:label_time_tracking) %></legend>
+			<table>
+				<% @timebank[Version][:totals].each do |column, value| %>
+				<tr>
+					<th><%= l(column) %></th>
+					<td class="total-hours"><%= html_hours(l_hours(value)) %></td>
+				</tr>
+				<% end %>
+			</table>
+		</fieldset>
+		<% end %>
+		<div id="status_by">
+			<%= render_issue_status_by(@version, params[:status_by]) if @version.fixed_issues.count > 0 %>
+		</div>
+	</div>
+	<div id="left-main-col">
+		<%= render 'timebank', {
+			:group => Issue,
+			:type => Version,
+			:data => @v_issues[:tasks],
+			:legend => l(:related_issues),
+			:collapsed => true,
+			:interactive => true,
+			:version => @version,
+		} %>
+		<div id="time-tables">
+			<%= render 'timebank', {
+				:group => IssueCategory,
+				:type => Version,
+				:data => @timebank[Version],
+				:legend => l(:budget_targets)+' - '+l(:field_version),
+				:collapsed => false,
+				:interactive => false,
+				:version => @version,
+			} %>
+			<br/><br/>
+			<%= render 'timebank', {
+				:group => IssueCategory,
+				:type => Project,
+				:data => @timebank[Project],
+				:legend => l(:budget_targets)+' - '+l(:field_project),
+				:collapsed => false,
+				:interactive => false,
+				:version => @version,
+			} %>
+		</div>
+		<br/>
+		<%= render 'timebank', {
+			:group => Issue,
+			:type => Version,
+			:data => @v_issues[:stories],
+			:legend => l(:related_stories),
+			:collapsed => false,
+			:interactive => true,
+			:version => @version,
+		} %>
+	</div>
+	<br/><br/>
+
+</div>
+
+<%= call_hook :view_versions_show_bottom, :version => @version %>
+
+<% html_title @version.name %>
+
+<style>
+	fieldset.collapsed table { display:none; }
+	#left-main-col { overflow:hidden!important; }
+</style>
