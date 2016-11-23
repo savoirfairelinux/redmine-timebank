@@ -17,7 +17,7 @@ module VersionsControllerPatch
 			@version = Version.find(params[:id])
 			@project = @version.project
 
-			columns = [:story_points, :estimated_hours, :spent_hours, :remaining_hours, :projected_hours]
+			columns = [:story_points, :estimated_hours, :spent_hours, :remaining_hours]
 			columns.each do |column|
 				columns.delete(column) unless SFL_Permissions.is_user_allowed_to?(User.current, :read, column.to_s, @project)
 			end if Redmine::Plugin.registered_plugins.keys.include? :sfl_backlogs_permissions

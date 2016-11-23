@@ -42,11 +42,10 @@ module TimeBankHelper
 		template = Hash[*columns.collect { |k| [k, 0.0] }.flatten]
 		data = {}
 
-		# categories ou issues du project
 		if group == 'id' then
 			selection.each do |grouping|
-				data[grouping] = template.clone unless data.key? grouping
-				data[grouping][:spent_hours] = grouping.total_spent_hours.to_f
+				data[grouping.to_i] = template.clone unless data.key? grouping
+				data[grouping.to_i][:spent_hours] = grouping.total_spent_hours.to_f
 			end
 		else
 			project.issue_categories.map(&:id).push(nil).each do |grouping|
@@ -83,7 +82,7 @@ module TimeBankHelper
 				data.each do |grouping, _columns|
 					data[grouping] = template.clone unless data.key? grouping
 					data[grouping][:projected_hours] = _columns[:spent_hours] + _columns[:remaining_hours]
-				end if columns.include? :projected_hours and columns.include? :spent_hours and project.module_enabled?('time_tracking')
+				end if columns.include? :spent_hours and project.module_enabled?('time_tracking')
 
 			end
 		end

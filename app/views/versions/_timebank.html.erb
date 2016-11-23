@@ -4,7 +4,7 @@
 		<legend onclick="<% if interactive %>toggleFieldset(this);<% end %>">
 			<%= legend %>
 		</legend>
-		<% if data[:table].count == 0 or data[:totals].count == 0 %>
+		<% if data[:table].count == 0 %>
 		<p><%= l(:no_data_returned) %></p>
 		<% else %>
 		<table class="list">
@@ -15,7 +15,7 @@
 					<th style="white-space: normal;"><%= l(column) %></th>
 					<% end %>
 				</tr>
-				<% data[:table].each do |grouping, entries| next if grouping == nil %>
+				<% data[:table].each do |grouping, entries| next if entries.values.reduce(:+) == 0 %>
 				<tr class="odd <% if interactive %>issue hascontextmenu related-issues<% end %>">
 					<% if interactive %><td class="checkbox"><%= check_box_tag 'ids[]', group.find(grouping.to_i), false, :id => nil %></td><% end %>
 					<td class="subject" width="<% if interactive %>60<% else %>40<% end %>%" style="text-align:<% if interactive %>left<% else %>center<% end %>!important;">
