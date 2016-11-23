@@ -14,6 +14,10 @@ module VersionsControllerPatch
 
 			config = Setting.plugin_sfl_timebank
 
+			unless config.values.uniq! == nil then
+				flash[:error] = "SFL-TimeBank plugin is not properly configured, data tables may be wrong."
+			end
+			
 			@version = Version.find(params[:id])
 			@project = @version.project
 
