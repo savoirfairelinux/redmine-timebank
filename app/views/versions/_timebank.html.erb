@@ -1,6 +1,6 @@
 <div class="time-table">
 	<%= form_tag({}) do -%>
-	<fieldset class="<% if interactive %>collapsible<% end %> <% if collapsed %>collapsed<% end %>">
+	<fieldset class="<% if interactive and data[:table].count != 0 %>collapsible<% end %> <% if collapsed %>collapsed<% end %>">
 		<legend onclick="<% if interactive %>toggleFieldset(this);<% end %>">
 			<%= legend %>
 		</legend>
