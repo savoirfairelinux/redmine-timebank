@@ -1,16 +1,16 @@
 <h1>
-	SFL TimeBank
+	Redmine Time Bank
 </h1>
-
+<br/>
 <p>
-	<label>"Story" Tracker</label><%= select_tag("settings[tracker_story]", options_from_collection_for_select(Tracker.all, :id, :name, @settings[:tracker_story])) %>
+	<label>"<%= l(:tracker_story) %>" <%= l(:label_tracker) %></label><%= select_tag("settings[tracker_story]", options_from_collection_for_select(Tracker.all, :id, :name, @settings[:tracker_story])) %>
 </p>
 
 <p>
-	<label>"Task" Tracker</label><%= select_tag("settings[tracker_task]", options_from_collection_for_select(Tracker.all, :id, :name, @settings[:tracker_task])) %>
+	<label>"<%= l(:tracker_task) %>" <%= l(:label_tracker) %></label><%= select_tag("settings[tracker_task]", options_from_collection_for_select(Tracker.all, :id, :name, @settings[:tracker_task])) %>
 </p>
 
 <p>
-	<label>"Bug" Tracker</label><%= select_tag("settings[tracker_bug]", options_from_collection_for_select(Tracker.all, :id, :name, @settings[:tracker_bug])) %>
+	<label>"<%= l(:default_tracker_bug) %>" <%= l(:label_tracker) %></label><%= select_tag("settings[tracker_bug]", options_from_collection_for_select(Tracker.all, :id, :name, @settings[:tracker_bug])) %>
 </p>
 

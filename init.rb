@@ -1,4 +1,3 @@
-# coding: utf-8
 #
 #    Copyright (C) 2014 Savoir-faire Linux Inc. (<www.savoirfairelinux.com>).
 #
@@ -15,21 +14,19 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
 require 'redmine'
-
 require 'issue_patch'
 require 'timebank_helper'
 require 'versions_controller_patch'
 
-Redmine::Plugin.register :sfl_timebank do
+Redmine::Plugin.register :redmine_timebank do
 
-	name 'SFL TimeBank'
-	author 'David Côté-Tremblay'
-	description 'Show a table with summation total of spent and estimated hours, scenario points, remaining and projected time for current version.'
-	version '0.0.1'
-	url 'https://gitlab.savoirfairelinux.com/redmine/SFL-TimeBank'
-	author_url 'http://savoirfairelinux.com/'
+	name 'Redmine Time Bank'
+	author 'Savoir-faire Linux'
+	description 'Show a table with summation total of spent and estimated hours, story points, remaining and projected in version pages.'
+	version '0.1.0'
+	url 'https://github.com/savoirfairelinux/redmine-timebank'
+	author_url 'https://www.savoirfairelinux.com/'
 
 	settings :default => {
 		:tracker_story => nil,

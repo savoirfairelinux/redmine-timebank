@@ -1,4 +1,3 @@
-# coding: utf-8
 #
 #    Copyright (C) 2014 Savoir-faire Linux Inc. (<www.savoirfairelinux.com>).
 #
@@ -15,7 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#
 module VersionsControllerPatch
 
 	def self.included(base)
@@ -29,10 +27,10 @@ module VersionsControllerPatch
 
 		def show_with_timebank
 
-			config = Setting.plugin_sfl_timebank
+			config = Setting.plugin_redmine_timebank
 
 			unless config.values.uniq! == nil then
-				flash[:error] = "SFL-TimeBank plugin is not properly configured, data tables may be wrong."
+				flash[:error] = "Redmine Time Bank plugin is not properly configured, data tables may be wrong."
 			end
 			
 			@version = Version.find(params[:id])

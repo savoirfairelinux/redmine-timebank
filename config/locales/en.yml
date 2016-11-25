@@ -8,3 +8,5 @@ en:
     budget_targets: Budget targets
     related_issues: Related issues
     related_stories: Related stories
+    tracker_story: Story
+    tracker_task: Task

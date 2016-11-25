@@ -8,3 +8,5 @@ fr:
     budget_targets: Cibles budgétaires
     related_issues: Demandes liées
     related_stories: Scénarios liés
+    tracker_story: Scénario
+    tracker_task: Tâche
