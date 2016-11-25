@@ -44,6 +44,14 @@
 		<div id="status_by">
 			<%= render_issue_status_by(@version, params[:status_by]) if @version.fixed_issues.count > 0 %>
 		</div>
+
+		<% if @version.project.module_enabled?('backlogs') %>
+		<div id="burndown-timebank">
+			<br/>
+			<h3>Burndown</h3>
+			<%= render :partial => "rb_burndown_charts/burndown", :locals => {:sprint => @version, :mode => :minimal, :style => 'margin-left:5%; margin-top:20px; width:100%; height:230px;' } %>
+		</div>
+		<% end %>
 	</div>
 	<div id="left-main-col">
 		<%= render 'timebank', {
