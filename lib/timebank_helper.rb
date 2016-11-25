@@ -16,12 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-class Hash
-	def + x 
-		self.merge(x)
-	end 
-end
-
 module TimeBankHelper
 
 	def self.do_totalizations(summations)
@@ -112,4 +106,10 @@ module TimeBankHelper
 
 	end
 
+end
+
+class Hash
+	def + x 
+		self.merge(x)
+	end 
 end
