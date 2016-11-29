@@ -1,0 +1,12 @@
+zh:
+    spent_hours: 已耗时
+    estimated_hours: 预估工时
+    remaining_hours: 剩余工时
+    story_points: 故事点（SP）
+    projected_hours: 预计时间
+    no_data_returned: 数据查询未返回结果。
+    budget_targets: 预算目标
+    related_issues: 已关联的问题
+    related_stories: 已关联的故事
+    tracker_story: 故事
+    tracker_task: 任务
