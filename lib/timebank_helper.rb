@@ -48,6 +48,7 @@ module TimeBankHelper
 
 		selection = Issue.where(in_scope + in_trackers)
 		selection_with_group = selection.group('COALESCE(issues.'+group+', NULL)')
+		with_children = 'issues.rgt != issues.lft + 1'
 
 		template = Hash[*columns.collect { |k| [k, 0.0] }.flatten]
 		data = {}
@@ -64,11 +65,12 @@ module TimeBankHelper
 			end if columns.include? :spent_hours and project.module_enabled?('time_tracking')
 		end
 
-		selection_with_group.sum(:estimated_hours).each do |grouping, total|
+		project.issue_categories.map(&:id).push(nil).each do |grouping|
 			data[grouping] = template.clone unless data.key? grouping
-			data[grouping][:estimated_hours] = total
+			in_group_selection = selection.where({('issues.'+group) => grouping})
+			data[grouping][:estimated_hours] = in_group_selection.where(with_children).map(&:descendants).flatten.collect{|x| x[:estimated_hours]}.compact.sum
+			data[grouping][:estimated_hours] += in_group_selection.where.not(with_children).collect{|x| x[:estimated_hours]}.compact.sum
 		end if columns.include? :estimated_hours
-		# todo : estimated_hours = if have_decendants then descendants.estimated_hours  else estimated_hours end
 
 		if project.module_enabled?('backlogs') then
 
