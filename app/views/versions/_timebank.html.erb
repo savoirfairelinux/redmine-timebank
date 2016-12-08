@@ -35,7 +35,7 @@
 				</tr>
 				<% data[:table].each do |grouping, entries| next if entries.values.reduce(:+) == 0 %>
 				<tr class="odd <% if interactive %>issue hascontextmenu related-issues<% end %>">
-					<% if interactive %><td class="checkbox"><%= check_box_tag 'ids[]', group.find(grouping.to_i), false, :id => nil %></td><% end %>
+					<% if interactive %><td class="checkbox"><%= check_box_tag 'ids[]', grouping, false %></td><% end %>
 					<td class="subject" width="<% if interactive %>60<% else %>40<% end %>%" style="text-align:<% if interactive %>left<% else %>center<% end %>!important;">
 						<% if interactive %>
 							<%= link_to_issue(group.find(grouping.to_i)) %>
