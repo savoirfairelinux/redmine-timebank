@@ -45,7 +45,7 @@
 			<%= render_issue_status_by(@version, params[:status_by]) if @version.fixed_issues.count > 0 %>
 		</div>
 
-		<% if @version.project.module_enabled?('backlogs') %>
+		<% if @version.project.module_enabled?('backlogs') and not @version.burndown.burndown.empty? %>
 		<div id="burndown-timebank">
 			<br/>
 			<h3>Burndown</h3>
