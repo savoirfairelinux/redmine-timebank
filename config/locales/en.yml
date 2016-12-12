@@ -8,5 +8,7 @@ en:
     budget_targets: Budget targets
     related_issues: Related issues
     related_stories: Related stories
-    tracker_story: Story
-    tracker_task: Task
+    story_trackers: Story Trackers
+    cache_expiration: Cache expiration
+    disabled: Disabled
+    minutes: Minutes

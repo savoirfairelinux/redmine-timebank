@@ -28,11 +28,14 @@ module VersionsControllerPatch
 		def show_with_timebank
 
 			config = Setting.plugin_redmine_timebank
-
-			unless config.values.uniq! == nil then
-				flash[:error] = "Redmine Time Bank plugin is not properly configured, data tables may be wrong."
+			if config == '' or config.values.uniq! != nil then
+				flash[:error] = "Redmine Time Bank plugin is not properly configured. Go to Admin -> Plugins -> TimeBank"
+				return redirect_to @version.project
 			end
-			
+
+			story_trackers = config[:story_trackers].map(&:to_i)
+			task_trackers = Tracker.all.pluck(:id) - story_trackers
+
 			@version = Version.find(params[:id])
 			@project = @version.project
 
@@ -42,13 +45,12 @@ module VersionsControllerPatch
 			end 
 
 			@timebank = {}
-			timebank_trackers = [config[:tracker_story], config[:tracker_bug]]
-			@timebank[Version] = TimeBankHelper.issues_summations(@version, timebank_trackers, 'category_id', columns)
-			@timebank[Project] = TimeBankHelper.issues_summations(@project, timebank_trackers, 'category_id', columns - [:story_points, :estimated_hours])
+			@timebank[Version] = TimeBankHelper.issues_summations(@version, story_trackers, 'category_id', columns)
+			@timebank[Project] = TimeBankHelper.issues_summations(@project, story_trackers, 'category_id', columns - [:story_points, :estimated_hours])
 
 			@v_issues = {}
-			@v_issues[:stories] = TimeBankHelper.issues_summations(@version, [config[:tracker_story], config[:tracker_bug]], 'id', columns)
-			@v_issues[:tasks] = TimeBankHelper.issues_summations(@version, [config[:tracker_task]], 'id', columns - [:story_points])
+			@v_issues[:stories] = TimeBankHelper.issues_summations(@version, story_trackers, 'id', columns)
+			@v_issues[:tasks] = TimeBankHelper.issues_summations(@version, task_trackers, 'id', columns - [:story_points])
 
 			@show_timebanks = columns.count > 0
 

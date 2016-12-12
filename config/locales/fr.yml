@@ -8,5 +8,7 @@ fr:
     budget_targets: Cibles budgétaires
     related_issues: Demandes liées
     related_stories: Scénarios liés
-    tracker_story: Scénario
-    tracker_task: Tâche
+    story_trackers: Trackers de scénario
+    cache_expiration: Expiration du cache
+    disabled: Désactivé
+    minutes: Minutes

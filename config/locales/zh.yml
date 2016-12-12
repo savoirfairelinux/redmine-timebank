@@ -8,5 +8,7 @@ zh:
     budget_targets: 预算目标
     related_issues: 已关联的问题
     related_stories: 已关联的故事
-    tracker_story: 故事
-    tracker_task: 任务
+    story_trackers: 跟踪方案
+    cache_expiration: 缓存过期
+    disabled: 禁用
+    minutes: 分钟
