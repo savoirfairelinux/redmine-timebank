@@ -55,21 +55,32 @@ module TimeBankHelper
 
 		if group == 'id' then
 			selection.each do |grouping|
-				data[grouping.to_i] = template.clone unless data.key? grouping
-				data[grouping.to_i][:spent_hours] = grouping.total_spent_hours.to_f if columns.include? :spent_hours and project.module_enabled?('time_tracking')
+				data[grouping.to_i] = template.clone unless data.key? grouping.to_i
+				data[grouping.to_i][:spent_hours] = grouping.total_spent_hours.to_f
 			end
 		else
 			project.issue_categories.map(&:id).push(nil).each do |grouping|
 				data[grouping] = template.clone unless data.key? grouping
 				data[grouping][:spent_hours] = selection.where(('issues.'+group) => grouping).map(&:total_spent_hours).inject(:+).to_f
-			end if columns.include? :spent_hours and project.module_enabled?('time_tracking')
-		end
+			end
+		end if columns.include? :spent_hours and project.module_enabled?('time_tracking')
 
-		project.issue_categories.map(&:id).push(nil).each do |grouping|
-			data[grouping] = template.clone unless data.key? grouping
-			in_group_selection = selection.where({('issues.'+group) => grouping})
-			data[grouping][:estimated_hours] = in_group_selection.where(with_children).map(&:descendants).flatten.collect{|x| x[:estimated_hours]}.compact.sum
-			data[grouping][:estimated_hours] += in_group_selection.where.not(with_children).collect{|x| x[:estimated_hours]}.compact.sum
+		if group == 'id' then
+			selection.each do |grouping|
+				data[grouping.to_i] = template.clone unless data.key? grouping.to_i
+				data[grouping.to_i][:estimated_hours] = if grouping.descendants.empty? then
+					grouping.estimated_hours
+				else
+					grouping.descendants.flatten.collect{|x| x[:estimated_hours]}.compact.sum
+				end.to_f
+			end
+		else
+			project.issue_categories.map(&:id).push(nil).each do |grouping|
+				data[grouping] = template.clone unless data.key? grouping
+				in_group_selection = selection.where({('issues.'+group) => grouping})
+				data[grouping][:estimated_hours] = in_group_selection.where(with_children).map(&:descendants).flatten.collect{|x| x[:estimated_hours]}.compact.sum
+				data[grouping][:estimated_hours] += in_group_selection.where.not(with_children).collect{|x| x[:estimated_hours]}.compact.sum
+			end
 		end if columns.include? :estimated_hours
 
 		if project.module_enabled?('backlogs') then
