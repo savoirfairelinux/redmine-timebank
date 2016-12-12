@@ -93,13 +93,25 @@ module TimeBankHelper
 			if columns.include? :remaining_hours then
 
 				open_statuses_ids = IssueStatus.where(:is_closed => false).pluck(:id)
-				project.issue_categories.map(&:id).push(nil).each do |grouping|
-					data[grouping] = template.clone unless data.key? grouping
-					in_group_selection = selection.where({('issues.'+group) => grouping})
-					data[grouping][:remaining_hours] = in_group_selection.where(with_children).map(&:descendants).flatten.collect{|x| x[:remaining_hours]}.compact.sum
-					data[grouping][:remaining_hours] += in_group_selection.joins(:status).where(in_open_statuses).where.not(with_children).collect{
-						|x| x[:remaining_hours] || x[:story_points]
-					}.compact.sum
+
+				if group == 'id' then
+					selection.each do |grouping|
+						data[grouping.to_i] = template.clone unless data.key? grouping.to_i
+						data[grouping.to_i][:remaining_hours] = if grouping.descendants.empty? then
+							grouping.status.is_closed ? 0 : grouping.estimated_hours
+						else
+							grouping.descendants.flatten.collect{|x| (open_statuses_ids.include? x[:status_id]) ? x[:remaining_hours] : 0}.compact.sum
+						end.to_f
+					end
+				else
+					project.issue_categories.map(&:id).push(nil).each do |grouping|
+						data[grouping] = template.clone unless data.key? grouping
+						in_group_selection = selection.where({('issues.'+group) => grouping})
+						data[grouping][:remaining_hours] = in_group_selection.where(with_children).map(&:descendants).flatten.collect{|x| x[:remaining_hours]}.compact.sum
+						data[grouping][:remaining_hours] += in_group_selection.joins(:status).where(in_open_statuses).where.not(with_children).collect{
+							|x| x[:remaining_hours] || x[:story_points]
+						}.compact.sum
+					end
 				end
 
 				data.each do |grouping, _columns|
