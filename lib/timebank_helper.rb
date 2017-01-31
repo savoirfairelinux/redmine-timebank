@@ -27,6 +27,10 @@ module TimeBankHelper
 		return data
 	end
 
+	def self.chainsum(flattened, symb)
+		flattened.collect{|x| x[symb]}.compact.sum
+	end
+
 	def self.issues_summations(scope, trackers, group, columns)
 
 		project = nil
@@ -46,93 +50,74 @@ module TimeBankHelper
 		in_open_statuses = {:issue_statuses => {:is_closed => false}}
 		remaining_hours_is_nil = {:remaining_hours => nil}
 
-		selection = Issue.where(in_scope + in_trackers)
+		selection = Issue.where(in_scope, in_trackers)
 		selection_with_group = selection.group('COALESCE(issues.'+group+', NULL)')
 		with_children = 'issues.rgt != issues.lft + 1'
 
 		template = Hash[*columns.collect { |k| [k, 0.0] }.flatten]
 		data = {}
 
-		if group == 'id' then
-			selection.each do |grouping|
-				data[grouping.to_i] = template.clone unless data.key? grouping.to_i
-				data[grouping.to_i][:spent_hours] = grouping.total_spent_hours.to_f
-			end
-		else
-			project.issue_categories.map(&:id).push(nil).each do |grouping|
-				data[grouping] = template.clone unless data.key? grouping
-				data[grouping][:spent_hours] = selection.where(('issues.'+group) => grouping).map(&:total_spent_hours).inject(:+).to_f
-			end
-		end if columns.include? :spent_hours and project.module_enabled?('time_tracking')
+		if project.module_enabled?('backlogs') and columns.include? :remaining_hours then
+			open_statuses_ids = IssueStatus.where(:is_closed => false).pluck(:id)
+		end
 
-		if group == 'id' then
-			selection.each do |grouping|
-				data[grouping.to_i] = template.clone unless data.key? grouping.to_i
-				data[grouping.to_i][:estimated_hours] = if grouping.descendants.empty? then
-					grouping.estimated_hours
-				else
-					grouping.descendants.flatten.collect{|x| x[:estimated_hours]}.compact.sum
-				end.to_f
-			end
-		else
-			project.issue_categories.map(&:id).push(nil).each do |grouping|
-				data[grouping] = template.clone unless data.key? grouping
-				in_group_selection = selection.where({('issues.'+group) => grouping})
-				data[grouping][:estimated_hours] = in_group_selection.where(with_children).map(&:descendants).flatten.collect{|x| x[:estimated_hours]}.compact.sum
-				data[grouping][:estimated_hours] += in_group_selection.where.not(with_children).collect{|x| x[:estimated_hours]}.compact.sum
-			end
-		end if columns.include? :estimated_hours
+		gkey = 'issues.'+group
+		single = group == 'id'
 
-		if project.module_enabled?('backlogs') then
+		if single then selection else
+			project.issue_categories.map(&:id).push(nil)
+		end.each do |grouping|
 
-			selection_with_group.sum(:story_points).each do |grouping, total|
-				data[grouping] = template.clone unless data.key? grouping
-				data[grouping][:story_points] = total
-			end if columns.include? :story_points
+			in_group_selection = unless single then selection.where({gkey => grouping}) end
+			chunk = template.clone
+			
+			chunk[:spent_hours] = if single then
+				grouping.total_spent_hours
+			else
+				selection.where(gkey => grouping).map(&:total_spent_hours).inject(:+)
+			end.to_f if columns.include? :spent_hours and project.module_enabled?('time_tracking')
 
-			if columns.include? :remaining_hours then
+			chunk[:estimated_hours] = if single then
+				if grouping.descendants.empty? then grouping.estimated_hours else
+					self.chainsum(grouping.descendants.flatten, :estimated_hours)
+				end
+			else
+				self.chainsum(in_group_selection.where(with_children).map(&:descendants).flatten, :estimated_hours) +
+					self.chainsum(in_group_selection.where.not(with_children), :estimated_hours)
+			end.to_f if columns.include? :estimated_hours
 
-				open_statuses_ids = IssueStatus.where(:is_closed => false).pluck(:id)
+			if project.module_enabled?('backlogs') then
 
-				if group == 'id' then
-					selection.each do |grouping|
-						data[grouping.to_i] = template.clone unless data.key? grouping.to_i
-						data[grouping.to_i][:remaining_hours] = if grouping.descendants.empty? then
-							grouping.status.is_closed ? 0 : grouping.estimated_hours
-						else
-							grouping.descendants.flatten.collect{|x| (open_statuses_ids.include? x[:status_id]) ? x[:remaining_hours] : 0}.compact.sum
-						end.to_f
-					end
-				else
-					project.issue_categories.map(&:id).push(nil).each do |grouping|
-						data[grouping] = template.clone unless data.key? grouping
-						in_group_selection = selection.where({('issues.'+group) => grouping})
-						data[grouping][:remaining_hours] = in_group_selection.where(with_children).map(&:descendants).flatten.collect{|x| x[:remaining_hours]}.compact.sum
-						data[grouping][:remaining_hours] += in_group_selection.joins(:status).where(in_open_statuses).where.not(with_children).collect{
-							|x| x[:remaining_hours] || x[:story_points]
+				chunk[:remaining_hours] = if single then 
+					if grouping.descendants.empty? then
+						grouping.status.is_closed ? 0 : grouping.estimated_hours
+					else
+						grouping.descendants.flatten.collect{
+							|x| (open_statuses_ids.include? x[:status_id]) ? x[:remaining_hours] : 0
 						}.compact.sum
 					end
-				end
+				else
+					self.chainsum(in_group_selection.where(with_children).map(&:descendants).flatten, :remaining_hours) +
+						in_group_selection.joins(:status).where(in_open_statuses).where.not(with_children).collect{
+							|x| x[:remaining_hours] || x[:story_points]
+						}.compact.sum
+				end.to_f if columns.include? :remaining_hours
 
-				data.each do |grouping, _columns|
-					data[grouping] = template.clone unless data.key? grouping
-					data[grouping][:projected_hours] = _columns[:spent_hours] + _columns[:remaining_hours]
-				end if columns.include? :spent_hours and project.module_enabled?('time_tracking')
-
+				if columns.include? :spent_hours and project.module_enabled?('time_tracking')
+					chunk[:projected_hours] = chunk[:spent_hours] + chunk[:remaining_hours]
+				end 
 			end
+
+			data[if single then grouping.to_i else grouping end] = chunk
 		end
+
+		selection_with_group.sum(:story_points).each do |grouping, total|
+			data[grouping][:story_points] = total
+		end if project.module_enabled?('backlogs') and columns.include? :story_points
 
 		return {
 			:table => data,
 			:totals => self.do_totalizations(data)
 		}
-
 	end
-
-end
-
-class Hash
-	def + x 
-		self.merge(x)
-	end 
 end
