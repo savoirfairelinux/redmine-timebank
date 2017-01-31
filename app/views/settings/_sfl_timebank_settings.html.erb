@@ -5,3 +5,21 @@
 <p>
 	<label><%= l(:story_trackers) %> </label><%= select_tag("settings[story_trackers]", options_from_collection_for_select(Tracker.all, :id, :name, (@settings == '') ? [] : @settings[:story_trackers]), :multiple => true) %>
 </p>
+
+<p>
+	<%= content_tag(:label, l(:cache_expiration)) %>
+	<%= select_tag("settings[cache_minutes]",
+		options_for_select([
+			[l(:disabled), '0'],
+			["1 #{l(:minutes)}", '1'],
+			["2 #{l(:minutes)}", '2'],
+			["3 #{l(:minutes)}", '3'],
+			["4 #{l(:minutes)}", '4'],
+			["5 #{l(:minutes)}", '5'],
+			["10 #{l(:minutes)}", '10'],
+			["15 #{l(:minutes)}", '15'],
+			["30 #{l(:minutes)}", '30'],
+			["45 #{l(:minutes)}", '45'],
+			["60 #{l(:minutes)}", '60'],
+		], @settings[:cache_minutes])) %>
+</p>

@@ -29,7 +29,8 @@ Redmine::Plugin.register :redmine_timebank do
 	author_url 'https://www.savoirfairelinux.com/'
 
 	settings :default => {
-		:story_trackers => []
+		:story_trackers => [],
+		:cache_minutes => 1,
 	}, :partial => 'sfl_timebank_settings'
 
 end

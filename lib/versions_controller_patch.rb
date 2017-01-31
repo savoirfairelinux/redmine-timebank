@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+require 'digest/md5'
+
 module VersionsControllerPatch
 
 	def self.included(base)
@@ -46,7 +48,13 @@ module VersionsControllerPatch
 
 			@timebank = {}
 			@timebank[Version] = TimeBankHelper.issues_summations(@version, story_trackers, 'category_id', columns)
-			@timebank[Project] = TimeBankHelper.issues_summations(@project, story_trackers, 'category_id', columns - [:story_points, :estimated_hours])
+
+			cache_addr = Digest::MD5.hexdigest(columns.join(':')).to_s+'-'+@project.id.to_s
+			@timebank[Project] = Rails.cache.read('timebank-project-'+cache_addr)
+			if @timebank[Project].nil? then
+				@timebank[Project] = TimeBankHelper.issues_summations(@project, story_trackers, 'category_id', columns - [:story_points, :estimated_hours])
+				Rails.cache.write('timebank-project-'+cache_addr, @timebank[Project], expires_in: config[:cache_minutes].to_i.minutes)
+			end
 
 			@v_issues = {}
 			@v_issues[:stories] = TimeBankHelper.issues_summations(@version, story_trackers, 'id', columns)
