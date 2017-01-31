@@ -40,7 +40,10 @@
 						<% if interactive %>
 							<%= link_to_issue(group.find(grouping.to_i)) %>
 						<% else %>
-							<% link_default_parameters = {:set_filter => 1, :status_id => '*', :category_id => grouping.to_i} %>
+							<%
+							cat = if grouping.to_i == 0 then '!*' else grouping.to_i end
+							link_default_parameters = {:set_filter => 1, :status_id => '*', :category_id => cat}
+							%>
 							<% if type == Version %>
 								<% link_parameters = link_default_parameters.merge({:fixed_version_id => version}) %>
 							<% elsif type == Project %>
