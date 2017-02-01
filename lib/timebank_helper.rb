@@ -86,7 +86,7 @@ module TimeBankHelper
 					self.chainsum(in_group_selection.where.not(with_children), :estimated_hours)
 			end.to_f if columns.include? :estimated_hours
 
-			if project.module_enabled?('backlogs') then
+			if project.module_enabled?('backlogs') and columns.include? :remaining_hours then
 
 				chunk[:remaining_hours] = if single then 
 					if grouping.descendants.empty? then
@@ -101,7 +101,7 @@ module TimeBankHelper
 						in_group_selection.joins(:status).where(in_open_statuses).where.not(with_children).collect{
 							|x| x[:remaining_hours] || x[:story_points]
 						}.compact.sum
-				end.to_f if columns.include? :remaining_hours
+				end.to_f
 
 				if columns.include? :spent_hours and project.module_enabled?('time_tracking')
 					chunk[:projected_hours] = chunk[:spent_hours] + chunk[:remaining_hours]
