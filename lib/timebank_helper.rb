@@ -50,7 +50,7 @@ module TimeBankHelper
 		in_open_statuses = {:issue_statuses => {:is_closed => false}}
 		remaining_hours_is_nil = {:remaining_hours => nil}
 
-		selection = Issue.where(in_scope, in_trackers)
+		selection = Issue.where(in_scope.merge(in_trackers))
 		selection_with_group = selection.group('COALESCE(issues.'+group+', NULL)')
 		with_children = 'issues.rgt != issues.lft + 1'
 
