@@ -1,0 +1,3 @@
+fieldset.collapsed table { display:none; }
+#left-main-col { overflow:hidden!important; }
+#burndown-timebank { overflow-x: hidden; }

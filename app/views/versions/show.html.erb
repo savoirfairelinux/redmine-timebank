@@ -16,6 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 %>
+<% content_for :header_tags do %>
+	<%= stylesheet_link_tag 'timebank.css', :plugin => 'redmine_timebank' %>
+<% end %>
+
 <div class="contextual">
 	<%= link_to(l(:button_edit), edit_version_path(@version), :class => 'icon icon-edit') if User.current.allowed_to?(:manage_versions, @version.project) %>
 	<%= link_to_if_authorized(l(:button_edit_associated_wikipage, :page_title => @version.wiki_page_title), {:controller => 'wiki', :action => 'edit', :project_id => @version.project, :id => Wiki.titleize(@version.wiki_page_title)}, :class => 'icon icon-edit') unless @version.wiki_page_title.blank? || @version.project.wiki.nil? %>
@@ -48,7 +52,7 @@
 		<% if @version.project.module_enabled?('backlogs') and not @version.burndown.burndown.empty? %>
 		<div id="burndown-timebank">
 			<br/>
-			<h3>Burndown</h3>
+			<h3><%= l(:label_burndown) %></h3>
 			<%= render :partial => "rb_burndown_charts/burndown", :locals => {:sprint => @version, :mode => :minimal, :style => 'margin-left:5%; margin-top:20px; width:100%; height:230px;' } %>
 		</div>
 		<% end %>
@@ -104,9 +108,3 @@
 <%= call_hook :view_versions_show_bottom, :version => @version %>
 
 <% html_title @version.name %>
-
-<style>
-	fieldset.collapsed table { display:none; }
-	#left-main-col { overflow:hidden!important; }
-	body { overflow-x: hidden; }
-</style>
